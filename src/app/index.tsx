@@ -1,143 +1,153 @@
+import { useRouter } from 'expo-router';
+import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const categories = [
-  { id: '1', name: 'Web Dev' },
-  { id: '2', name: 'Mobile App' },
-  { id: '3', name: 'Graphic Design' },
-  { id: '4', name: 'Data Analysis' },
-];
+const categories = ['All', 'Web Dev', 'Mobile App', 'Graphic Design', 'Data Analysis'];
 
-const services = [
-  { id: '1', title: 'React Native Mobile App', freelancer: 'Ozair Khan', price: '$45/hr', rating: '4.9' },
-  { id: '2', title: 'Full Stack Web Platform', freelancer: 'Mahad Mustafa', price: '$60/hr', rating: '5.0' },
-  { id: '3', title: 'UI/UX Brand Identity', freelancer: 'Abdur Rahman', price: '$40/hr', rating: '4.8' },
+const initialServices = [
+  { id: '1', title: 'React Native Mobile App', category: 'Mobile App', freelancer: 'Ozair Khan', price: '$45/hr', rating: '4.9', reviews: '120', description: 'Build high-performance cross-platform mobile applications using React Native and Expo.' },
+  { id: '2', title: 'Full Stack Web Platform', category: 'Web Dev', freelancer: 'Mahad Mustafa', price: '$60/hr', rating: '5.0', reviews: '95', description: 'Scalable web applications built with React, Node.js, Express, and MongoDB.' },
+  { id: '3', title: 'UI/UX Brand Identity', category: 'Graphic Design', freelancer: 'Abdur Rahman', price: '$40/hr', rating: '4.8', reviews: '80', description: 'Professional UI/UX design systems, wireframes, and brand identities using Figma.' },
 ];
 
 export default function MarketplaceScreen() {
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [favorites, setFavorites] = useState<string[]>([]);
+
+  const toggleFavorite = (id: string) => {
+    if (favorites.includes(id)) {
+      setFavorites(favorites.filter(item => item !== id));
+    } else {
+      setFavorites([...favorites, id]);
+    }
+  };
+
+  const filteredServices = initialServices.filter(service => {
+    const matchesSearch = service.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          service.freelancer.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = selectedCategory === 'All' || service.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header / Search Section */}
+      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.logoText}>CodioraMarket</Text>
-        <TextInput 
-          style={styles.searchBar} 
-          placeholder="Search for services or freelancers..." 
+      </View>
+
+      {/* Search Bar */}
+      <View style={styles.searchContainer}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search services or freelancers..."
           placeholderTextColor="#888"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
         />
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Categories Section */}
-        <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Popular Categories</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {categories.map((cat) => (
-              <TouchableOpacity key={cat.id} style={styles.categoryCard}>
-                <Text style={styles.categoryText}>{cat.name}</Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
-
-        {/* Freelancer/Service Preview Section */}
-        <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Featured Services</Text>
-          {services.map((service) => (
-            <View key={service.id} style={styles.serviceCard}>
-              <View>
-                <Text style={styles.serviceTitle}>{service.title}</Text>
-                <Text style={styles.freelancerName}>by {service.freelancer}</Text>
-              </View>
-              <View style={styles.serviceMeta}>
-                <Text style={styles.servicePrice}>{service.price}</Text>
-                <Text style={styles.serviceRating}>★ {service.rating}</Text>
-              </View>
-            </View>
+      {/* Categories Horizontal Scroll */}
+      <View style={styles.categoryContainer}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          {categories.map((category) => (
+            <TouchableOpacity
+              key={category}
+              style={[styles.categoryPill, selectedCategory === category && styles.selectedPill]}
+              onPress={() => setSelectedCategory(category)}
+            >
+              <Text style={[styles.categoryText, selectedCategory === category && styles.selectedCategoryText]}>
+                {category}
+              </Text>
+            </TouchableOpacity>
           ))}
-        </View>
+        </ScrollView>
+      </View>
+
+      {/* Services List */}
+      <ScrollView contentContainerStyle={styles.listContainer}>
+        <Text style={styles.sectionTitle}>Featured Services</Text>
+        {filteredServices.length > 0 ? (
+          filteredServices.map((service) => {
+            const isFav = favorites.includes(service.id);
+            return (
+              <View key={service.id} style={styles.card}>
+                <View style={styles.cardHeader}>
+                  <Text style={styles.serviceCategory}>{service.category}</Text>
+                  <TouchableOpacity onPress={() => toggleFavorite(service.id)}>
+                    <Text style={{ fontSize: 20 }}>{isFav ? '❤️' : '🤍'}</Text>
+                  </TouchableOpacity>
+                </View>
+
+                <Text style={styles.serviceTitle}>{service.title}</Text>
+                
+                {/* Clickable Freelancer Name to open Profile Screen */}
+                <TouchableOpacity 
+                  onPress={() => router.push({
+                    pathname: '/profile',
+                    params: { freelancer: service.freelancer }
+                  })}
+                >
+                  <Text style={styles.freelancerName}>by {service.freelancer} ➔</Text>
+                </TouchableOpacity>
+                
+                <View style={styles.cardFooter}>
+                  <Text style={styles.priceText}>{service.price}</Text>
+                  <Text style={styles.ratingText}>⭐ {service.rating} ({service.reviews})</Text>
+                </View>
+
+                {/* View Details Button */}
+                <TouchableOpacity
+                  style={styles.detailsButton}
+                  onPress={() => router.push({
+                    pathname: '/service-details',
+                    params: { 
+                      title: service.title, 
+                      freelancer: service.freelancer, 
+                      price: service.price, 
+                      rating: service.rating, 
+                      description: service.description 
+                    }
+                  })}
+                >
+                  <Text style={styles.detailsButtonText}>View Details</Text>
+                </TouchableOpacity>
+              </View>
+            );
+          })
+        ) : (
+          <Text style={styles.noResultText}>No services found.</Text>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f8f9fa',
-    paddingHorizontal: 16,
-  },
-  header: {
-    marginTop: 10,
-    marginBottom: 20,
-  },
-  logoText: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#007AFF',
-    marginBottom: 10,
-  },
-  searchBar: {
-    backgroundColor: '#fff',
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#e1e4e8',
-    fontSize: 14,
-  },
-  sectionContainer: {
-    marginBottom: 24,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 12,
-  },
-  categoryCard: {
-    backgroundColor: '#007AFF',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 20,
-    marginRight: 10,
-  },
-  categoryText: {
-    color: '#fff',
-    fontWeight: '600',
-  },
-  serviceCard: {
-    backgroundColor: '#fff',
-    padding: 16,
-    borderRadius: 10,
-    marginBottom: 12,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#e1e4e8',
-  },
-  serviceTitle: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#1a1a1a',
-  },
-  freelancerName: {
-    fontSize: 13,
-    color: '#666',
-    marginTop: 4,
-  },
-  serviceMeta: {
-    alignItems: 'flex-end',
-  },
-  servicePrice: {
-    fontSize: 15,
-    fontWeight: 'bold',
-    color: '#007AFF',
-  },
-  serviceRating: {
-    fontSize: 13,
-    color: '#f39c12',
-    marginTop: 4,
-  },
+  container: { flex: 1, backgroundColor: '#121212' },
+  header: { padding: 16, backgroundColor: '#1E1E1E' },
+  logoText: { fontSize: 22, fontWeight: 'bold', color: '#fff' },
+  searchContainer: { padding: 16 },
+  searchInput: { backgroundColor: '#2A2A2A', color: '#fff', padding: 12, borderRadius: 8, fontSize: 16 },
+  categoryContainer: { paddingHorizontal: 16, marginBottom: 16 },
+  categoryPill: { backgroundColor: '#2A2A2A', paddingVertical: 8, paddingHorizontal: 16, borderRadius: 20, marginRight: 10 },
+  selectedPill: { backgroundColor: '#007AFF' },
+  categoryText: { color: '#aaa', fontWeight: '600' },
+  selectedCategoryText: { color: '#fff' },
+  listContainer: { padding: 16 },
+  sectionTitle: { fontSize: 18, fontWeight: 'bold', color: '#fff', marginBottom: 12 },
+  card: { backgroundColor: '#1E1E1E', borderRadius: 12, padding: 16, marginBottom: 16 },
+  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
+  serviceCategory: { color: '#007AFF', fontSize: 12, fontWeight: 'bold', textTransform: 'uppercase' },
+  serviceTitle: { fontSize: 18, fontWeight: 'bold', color: '#fff', marginBottom: 4 },
+  freelancerName: { color: '#4CD964', fontSize: 14, marginBottom: 12, fontWeight: '600' },
+  cardFooter: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 },
+  priceText: { color: '#4CD964', fontSize: 16, fontWeight: 'bold' },
+  ratingText: { color: '#FFCC00', fontSize: 14 },
+  detailsButton: { backgroundColor: '#333', padding: 10, borderRadius: 8, alignItems: 'center' },
+  detailsButtonText: { color: '#fff', fontWeight: '600' },
+  noResultText: { color: '#888', textAlign: 'center', marginTop: 20 }
 });
