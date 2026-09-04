@@ -1,44 +1,66 @@
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from 'expo-router';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const params = useLocalSearchParams();
+
+  // Add the logout function here
+  const handleLogout = async () => {
+    await AsyncStorage.removeItem('isLoggedIn');
+    router.replace('/login');
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-      <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-        <Text style={styles.backButtonText}>← Back</Text>
-      </TouchableOpacity>
-
-      <View style={styles.content}>
-        <View style={styles.avatarPlaceholder}><Text style={styles.avatarText}>👤</Text></View>
-        <Text style={styles.name}>{params.freelancer || 'Freelancer Profile'}</Text>
-        <Text style={styles.role}>Professional Software Engineer & Designer</Text>
-        
-        <Text style={styles.sectionHeader}>About</Text>
-        <Text style={styles.bio}>Experienced professional with a track record of delivering high-quality marketplace projects and client satisfaction.</Text>
-
-        <TouchableOpacity style={styles.contactButton} onPress={() => alert('Message sent to freelancer!')}>
-          <Text style={styles.contactButtonText}>Contact Freelancer</Text>
+      <ScrollView contentContainerStyle={styles.content}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <Text style={styles.backButtonText}>← Back to Market</Text>
         </TouchableOpacity>
-      </View>
+
+        <View style={styles.header}>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>OK</Text>
+          </View>
+          <Text style={styles.name}>Ozair Khan</Text>
+          <Text style={styles.email}>ozair@example.com</Text>
+        </View>
+
+        <View style={styles.menuContainer}>
+          <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/edit-profile')}>
+            <Text style={styles.menuText}>✏️ Edit Profile</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/my-services')}>
+            <Text style={styles.menuText}>📦 My Services / Gigs</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/freelancer-profile')}>
+            <Text style={styles.menuText}>👤 View Freelancer Public Profile</Text>
+          </TouchableOpacity>
+
+          {/* Connected handleLogout to the Log Out button */}
+          <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
+            <Text style={[styles.menuText, { color: '#FF3B30' }]}>🚪 Log Out</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#121212', padding: 16 },
+  container: { flex: 1, backgroundColor: '#121212' },
+  content: { padding: 20 },
   backButton: { marginBottom: 20 },
   backButtonText: { color: '#007AFF', fontSize: 16, fontWeight: '600' },
-  content: { flex: 1, alignItems: 'center' },
-  avatarPlaceholder: { width: 90, height: 90, borderRadius: 45, backgroundColor: '#2A2A2A', justifyContent: 'center', alignItems: 'center', marginBottom: 16 },
-  avatarText: { fontSize: 40 },
-  name: { fontSize: 22, fontWeight: 'bold', color: '#fff', marginBottom: 4 },
-  role: { fontSize: 14, color: '#aaa', marginBottom: 24 },
-  sectionHeader: { fontSize: 18, fontWeight: 'bold', color: '#fff', alignSelf: 'flex-start', marginBottom: 8 },
-  bio: { fontSize: 15, color: '#ccc', lineHeight: 22, marginBottom: 30, alignSelf: 'flex-start' },
-  contactButton: { backgroundColor: '#007AFF', padding: 16, borderRadius: 8, width: '100%', alignItems: 'center' },
-  contactButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' }
+  header: { alignItems: 'center', marginBottom: 30, backgroundColor: '#1E1E1E', padding: 20, borderRadius: 12 },
+  avatar: { width: 80, height: 80, borderRadius: 40, backgroundColor: '#007AFF', justifyContent: 'center', alignItems: 'center', marginBottom: 12 },
+  avatarText: { color: '#fff', fontSize: 24, fontWeight: 'bold' },
+  name: { fontSize: 20, fontWeight: 'bold', color: '#fff', marginBottom: 4 },
+  email: { fontSize: 14, color: '#aaa' },
+  menuContainer: { gap: 12 },
+  menuItem: { backgroundColor: '#1E1E1E', padding: 16, borderRadius: 10 },
+  menuText: { color: '#fff', fontSize: 16, fontWeight: '600' }
 });

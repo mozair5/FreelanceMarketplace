@@ -34,9 +34,12 @@ export default function MarketplaceScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
+      {/* Header with Logo and Profile Icon side by side */}
       <View style={styles.header}>
         <Text style={styles.logoText}>CodioraMarket</Text>
+        <TouchableOpacity onPress={() => router.push('/profile')} style={styles.profileIconBtn}>
+          <Text style={{ fontSize: 22 }}>👤</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Search Bar */}
@@ -128,8 +131,15 @@ export default function MarketplaceScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#121212' },
-  header: { padding: 16, backgroundColor: '#1E1E1E' },
+  header: { 
+    padding: 16, 
+    backgroundColor: '#1E1E1E', 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'center' 
+  },
   logoText: { fontSize: 22, fontWeight: 'bold', color: '#fff' },
+  profileIconBtn: { padding: 4 },
   searchContainer: { padding: 16 },
   searchInput: { backgroundColor: '#2A2A2A', color: '#fff', padding: 12, borderRadius: 8, fontSize: 16 },
   categoryContainer: { paddingHorizontal: 16, marginBottom: 16 },
