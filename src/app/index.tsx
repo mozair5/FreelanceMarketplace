@@ -64,6 +64,17 @@ export default function MarketplaceScreen() {
   </View>
 </TouchableOpacity>
 
+{/* Active Orders / Contracts Banner */}
+<TouchableOpacity 
+  style={styles.ordersBanner}
+  onPress={() => router.push('/my-orders')}
+>
+  <View>
+    <Text style={styles.ordersBannerTitle}>Active Orders & Contracts</Text>
+    <Text style={styles.ordersBannerSubtitle}>Manage milestones, progress, and deliverables ➔</Text>
+  </View>
+</TouchableOpacity>
+
       {/* Categories Horizontal Scroll */}
       <View style={styles.categoryContainer}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -190,5 +201,24 @@ bannerSubtitle: {
   color: '#007AFF',
   fontSize: 13,
   fontWeight: '600',
+},
+ordersBanner: {
+  backgroundColor: '#1E1E1E',
+  borderRadius: 12,
+  padding: 16,
+  marginHorizontal: 16,
+  marginBottom: 16,
+  borderWidth: 1,
+  borderColor: '#2A2A2A',
+},
+ordersBannerTitle: {
+  color: '#4CD964',
+  fontSize: 15,
+  fontWeight: 'bold',
+  marginBottom: 4,
+},
+ordersBannerSubtitle: {
+  color: '#aaa',
+  fontSize: 13,
 },
 });
