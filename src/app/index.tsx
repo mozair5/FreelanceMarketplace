@@ -53,6 +53,17 @@ export default function MarketplaceScreen() {
         />
       </View>
 
+      {/* Quick Navigation to Find Jobs */}
+<TouchableOpacity 
+  style={styles.findJobsBanner} 
+  onPress={() => router.push('/find-jobs')}
+>
+  <View>
+    <Text style={styles.bannerTitle}>💼 Looking for Work?</Text>
+    <Text style={styles.bannerSubtitle}>Browse client job listings and submit proposals ➔</Text>
+  </View>
+</TouchableOpacity>
+
       {/* Categories Horizontal Scroll */}
       <View style={styles.categoryContainer}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -159,5 +170,25 @@ const styles = StyleSheet.create({
   ratingText: { color: '#FFCC00', fontSize: 14 },
   detailsButton: { backgroundColor: '#333', padding: 10, borderRadius: 8, alignItems: 'center' },
   detailsButtonText: { color: '#fff', fontWeight: '600' },
-  noResultText: { color: '#888', textAlign: 'center', marginTop: 20 }
+  noResultText: { color: '#888', textAlign: 'center', marginTop: 20 },
+  findJobsBanner: {
+  backgroundColor: '#1E1E1E',
+  borderRadius: 12,
+  padding: 16,
+  marginHorizontal: 16,
+  marginBottom: 20,
+  borderWidth: 1,
+  borderColor: '#007AFF',
+},
+bannerTitle: {
+  color: '#fff',
+  fontSize: 16,
+  fontWeight: 'bold',
+  marginBottom: 4,
+},
+bannerSubtitle: {
+  color: '#007AFF',
+  fontSize: 13,
+  fontWeight: '600',
+},
 });
